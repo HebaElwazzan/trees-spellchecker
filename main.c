@@ -36,6 +36,44 @@ Node* insertNode(Node* root, char* key)
     */
 }
 
+void printFileSize(FILE* filePointer)
+{
+    fseek(filePointer, 0, SEEK_END);
+
+    int size = ftell(filePointer);
+
+    fseek(filePointer, 0, SEEK_SET);
+
+    printf("Size = %d\n\n", size);
+    printf("...............................\n\n");
+}
+
+void loadFile(char* fileName)
+{
+    char word[50];
+    Node* root = NULL;
+    FILE* filePointer;
+
+    filePointer = fopen(fileName, "r");
+
+    if(filePointer != NULL)
+    {
+        printf("...............................\n\n");
+        printf("Dictionary loaded successfully!\n\n");
+        printf("...............................\n\n");
+
+        printFileSize(filePointer);
+
+        while (fscanf(filePointer, "%[^\n]\n", word) != EOF)
+            root = insertNode(root, word);
+    }
+    else
+    {
+        printf("UNEXPECTED ERROR!");
+        exit(-1);
+    }
+}
+
 Node* searchTree(Node* root, char* key)
 {
     if(root == NULL)
@@ -128,6 +166,11 @@ void printInorder(Node *root)
 
 int main()
 {
+    char word[100];
+    loadFile("EN-US-Dictionary.txt");
+    printf("Enter a sentence:\n");
+    fgets(word, 100, stdin);
+
     printf("Test\n");
     Node* root = NULL;
     root = insertNode(root, "abc");
