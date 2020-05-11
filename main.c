@@ -44,10 +44,12 @@ Node* searchTree(Node* root, char* key)
         return NULL;
     else if(strcasecmp(key, root->word) == 0) //word and key are identical
         return root;
-    else if(strcasecmp(key, root->word) > 0)
+    else if(strcasecmp(key, root->word) > 0 && root->right)
         return searchTree(root->right, key);
-    else
+    else if(strcasecmp(key, root->word) < 0 && root->left)
         return searchTree(root->left, key);
+    else //word not found
+        return root;
 }
 
 Node* findMin(Node* root)
@@ -116,16 +118,6 @@ Node* getPredecessor(Node* root, char* key)
         }
         return predecessor;
     }
-}
-
-void printInorder(Node *root)
-{
-    if(root == NULL)
-        return;
-
-    printInorder(root->left);
-    printf("%s ", root->word);
-    printInorder(root->right);
 }
 
 int max(int x ,int y )
@@ -202,11 +194,21 @@ int main()
     char** words = NULL;
     words = tokenizeSentence(sentence);
     int i = 0;
+    Node* leafNode;
     while (words[i])
     {
-        printf("%s\n", words[i++]);
+        printf("%s - ", words[i]);
+        leafNode = searchTree(root, words[i]);
+        if(strcasecmp(leafNode->word, words[i]) == 0)
+            printf("CORRECT\n");
+        else
+        {
+            printf("INCORRECT, Suggestions: %s %s %s\n",
+                   leafNode->word, getSuccessor(root, leafNode->word)->word, getPredecessor(root, leafNode->word)->word);
+        }
+        leafNode = NULL;
+        i++;
     }
-
 
     return 0;
 }
