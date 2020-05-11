@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#define MAX_NUM_OF_WORDS 100
+#define MAX_NUM_OF_LETTERS 10
 
 ///Tree-related functions
 typedef struct Node
@@ -34,44 +36,6 @@ Node* insertNode(Node* root, char* key)
     *we do not handle the case where the key is equal to
     *any node as BSTs do not allow duplication
     */
-}
-
-void printFileSize(FILE* filePointer)
-{
-    fseek(filePointer, 0, SEEK_END);
-
-    int size = ftell(filePointer);
-
-    fseek(filePointer, 0, SEEK_SET);
-
-    printf("Size = %d\n\n", size);
-    printf("...............................\n\n");
-}
-
-void loadFile(char* fileName)
-{
-    char word[50];
-    Node* root = NULL;
-    FILE* filePointer;
-
-    filePointer = fopen(fileName, "r");
-
-    if(filePointer != NULL)
-    {
-        printf("...............................\n\n");
-        printf("Dictionary loaded successfully!\n\n");
-        printf("...............................\n\n");
-
-        printFileSize(filePointer);
-
-        while (fscanf(filePointer, "%[^\n]\n", word) != EOF)
-            root = insertNode(root, word);
-    }
-    else
-    {
-        printf("UNEXPECTED ERROR!");
-        exit(-1);
-    }
 }
 
 Node* searchTree(Node* root, char* key)
@@ -164,22 +128,85 @@ void printInorder(Node *root)
     printInorder(root->right);
 }
 
+int max(int x ,int y )
+{
+    return x>y?x:y;
+}
+
+int getHeight(Node* root)
+{
+    if(root==NULL)
+        return -1;
+    else
+        return 1 + max(getHeight(root->left), getHeight(root->right));
+
+}
+
+int getNumberOfNodes(Node *root){
+    if (root)
+        return 1 + getNumberOfNodes(root->left) + getNumberOfNodes(root->right);
+    return 0;
+}
+
+///File related functions
+Node* loadFile(char* fileName)
+{
+    char word[50];
+    Node* root = NULL;
+    FILE* filePointer;
+
+    filePointer = fopen(fileName, "r");
+
+    if(filePointer != NULL)
+    {
+        printf("...............................\n");
+        printf("Dictionary loaded successfully!\n");
+        printf("...............................\n");
+
+        while (fscanf(filePointer, "%[^\n]\n", word) != EOF)
+            root = insertNode(root, word);
+    }
+    else
+    {
+        printf("UNEXPECTED ERROR!");
+        exit(-1);
+    }
+    return root;
+}
+
+///Functions that have to do with the user's input
+char** tokenizeSentence(char* sentence)
+{
+    char** words = malloc(MAX_NUM_OF_WORDS * MAX_NUM_OF_LETTERS * sizeof(char));
+    int i = 0;
+    words[i] = strtok(sentence, " ,.\n");
+    while (words[i])
+        words[++i] = strtok(NULL, " ,.\n");
+    return words;
+
+}
+
 int main()
 {
-    char word[100];
-    loadFile("EN-US-Dictionary.txt");
-    printf("Enter a sentence:\n");
-    fgets(word, 100, stdin);
-
-    printf("Test\n");
+    char sentence[100];
     Node* root = NULL;
-    root = insertNode(root, "abc");
-    root = insertNode(root, "bcd");
-    root = insertNode(root, "bcdf");
-    root = insertNode(root, "300");
-    root = insertNode(root, "b'cdf");
-    printInorder(root);
-    printf("\n%s", getPredecessor(root, "bcd")->word);
+    root = loadFile("EN-US-Dictionary.txt");
+    printf("Size = %d\n", getNumberOfNodes(root));
+    printf("...............................\n");
+    printf("Height = %d\n", getHeight(root));
+    printf("...............................\n");
+
+
+    printf("Enter a sentence:\n");
+    fgets(sentence, 100, stdin);
+    char** words = NULL;
+    words = tokenizeSentence(sentence);
+    int i = 0;
+    while (words[i])
+    {
+        printf("%s\n", words[i++]);
+    }
+
 
     return 0;
 }
